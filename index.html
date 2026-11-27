@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f5fb">
+  <meta name="description" content="Astronic Tabletop — um espaço simples para o mestre conduzir suas campanhas de RPG.">
+  <title>Astronic Tabletop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <main id="authGate" class="auth-screen">
+    <section class="auth-card">
+      <div class="brand-lockup"><span class="brand-mark">✦</span><span>Astronic <b>Tabletop</b></span></div>
+      <div class="auth-heading"><div class="eyebrow">SUA MESA, SEU ESPAÇO</div><h1>Entre para <span>continuar.</span></h1><p>Entre na sua conta ou crie um perfil para acessar suas campanhas e sessões.</p></div>
+      <div id="authRolePicker" class="auth-role-picker" aria-label="Tipo de acesso">
+        <button type="button" class="auth-role-card selected" data-auth-role="master"><span class="auth-role-icon">♙</span><strong>Sou mestre</strong><small>Gerenciar campanhas e conduzir sessões</small></button>
+        <button type="button" class="auth-role-card" data-auth-role="player"><span class="auth-role-icon">◉</span><strong>Sou jogador</strong><small>Entrar em uma sessão e acompanhar a aventura</small></button>
+      </div>
+      <div id="authModeTabs" class="auth-mode-tabs"><button type="button" id="authLoginTab" class="selected">Entrar</button><button type="button" id="authRegisterTab">Criar conta</button></div>
+      <form id="authForm" class="auth-form">
+        <div id="authNameField" class="form-field hidden"><label for="authName">Como devemos chamar você?</label><input id="authName" name="name" maxlength="50" autocomplete="name" placeholder="Seu nome ou apelido"></div>
+        <div class="form-field"><label for="authEmail">E-mail</label><input id="authEmail" name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></div>
+        <div class="form-field"><label for="authPassword">Senha</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Pelo menos 6 caracteres"></div>
+        <div id="authConfirmField" class="form-field hidden"><label for="authPasswordConfirm">Confirmar senha</label><input id="authPasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="6" placeholder="Digite a senha novamente"></div>
+        <p id="authError" class="auth-error" role="alert"></p>
+        <button id="authSubmitButton" class="button button-primary button-large auth-submit" type="submit">Entrar como mestre</button>
+      </form>
+      <div class="auth-local-note"><span class="status-dot"></span><span>Contas e acesso conectados ao Firebase. As campanhas e mídias do mestre continuam salvas localmente neste dispositivo nesta etapa.</span></div>
+      <section id="masterActivationPanel" class="master-activation-panel hidden" aria-live="polite"><div class="master-activation-icon">♙</div><strong>Autorize sua conta como mestre</strong><p id="masterActivationMessage">Sua conta foi criada. Falta conceder a permissão de mestre no banco de dados.</p><label for="masterActivationUid">UID da sua conta Firebase</label><code id="masterActivationUid"></code><div class="master-activation-actions"><button type="button" class="button button-secondary" id="copyMasterUidButton">Copiar UID</button><button type="button" class="button button-primary" id="verifyMasterAccessButton">Já autorizei — verificar novamente</button></div><button type="button" class="text-button" id="masterActivationLogoutButton">Sair e voltar ao login</button><small>Esta autorização é feita pela proprietária do projeto no Firebase Console. A seleção “Mestre” na tela de login, sozinha, não concede privilégios administrativos.</small></section>
+    </section>
+    <div class="welcome-footer">Criado por Diana <span>·</span> Astronic Tabletop</div>
+  </main>
+
+  <main id="welcomeScreen" class="welcome-screen hidden">
+    <section class="welcome-card">
+      <div class="brand-lockup"><span class="brand-mark">✦</span><span>Astronic <b>Tabletop</b></span></div>
+      <div class="welcome-copy"><div class="eyebrow">CAMPAIGN PRESENTATION ROOM</div><h1>Suas histórias,<br><span>em um só lugar.</span></h1><p>Organize mapas, personagens, documentos e músicas para conduzir suas sessões.</p></div>
+      <div class="welcome-actions"><button id="createCampaignButton" class="button button-primary button-large">＋ Criar campanha</button><button id="openCampaignsButton" class="button button-secondary button-large">Abrir campanha existente</button><button id="welcomeLogoutButton" class="button button-quiet button-large">Sair da conta</button></div>
+      <div class="welcome-note"><span class="status-dot"></span> Sua campanha e seus arquivos ficam salvos neste dispositivo.</div>
+    </section>
+    <div class="welcome-footer">Criado por Diana <span>·</span> Astronic Tabletop</div>
+  </main>
+
+  <div id="appShell" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><span class="brand-mark">✦</span><span>Astronic <b>Tabletop</b></span></div>
+      <div class="campaign-switcher"><span class="overline">CAMPANHA ATUAL</span><strong id="sidebarCampaignName">Minha campanha</strong><button id="switchCampaignButton" class="text-button">Trocar campanha <span>⌄</span></button></div>
+      <nav class="main-nav" aria-label="Navegação principal">
+        <span class="nav-label">CAMPANHA</span>
+        <button class="nav-button active" data-view="map"><span class="nav-icon">⌖</span><span>Mapa</span></button>
+        <button class="nav-button" data-view="npcs"><span class="nav-icon">♙</span><span>NPCs</span></button>
+        <button class="nav-button" data-view="library"><span class="nav-icon">▧</span><span>Biblioteca</span></button>
+        <button class="nav-button" data-view="audio"><span class="nav-icon">♫</span><span>Áudio</span></button>
+        <button class="nav-button" data-view="handouts"><span class="nav-icon">▤</span><span>Handouts</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="local-storage-card"><span class="storage-icon">⌂</span><div><strong>Biblioteca local</strong><small>Salva neste dispositivo</small></div><span class="storage-check">●</span></div>
+        <button id="backupButton" class="nav-button utility-button"><span class="nav-icon">⇩</span><span>Backup da campanha</span></button>
+        <button id="settingsButton" class="nav-button utility-button"><span class="nav-icon">⌁</span><span>Sessão online</span></button>
+        <div class="sidebar-credit">Criado por Diana</div>
+      </div>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark">✦</span> Astronic <b>Tabletop</b></div>
+        <div class="topbar-context"><span class="context-dot"></span><span id="topbarCampaignName">Minha campanha</span><span class="context-divider">/</span><span id="topbarViewName">Mapa</span></div>
+        <div class="topbar-actions"><span class="local-badge"><span class="status-dot"></span> Firebase</span><span id="accountBadge" class="account-badge">Conta</span><button id="playerPreviewButton" class="button button-secondary button-small">◉ Visão dos jogadores</button><button id="logoutButton" class="button button-quiet button-small">Sair</button></div>
+      </header>
+
+      <div class="master-layout">
+        <div class="content-area">
+          <section id="view-map" class="view-panel active-view">
+            <div class="page-heading"><div><div class="eyebrow">EXPLORAÇÃO</div><h2>Mapa da campanha</h2><p>Edite seu mapa sem alterar o que os jogadores estão vendo.</p></div><div class="heading-actions"><button id="addNewMapButton" class="button button-primary">＋ Novo mapa</button><button id="manageMapsButton" class="button button-secondary">Gerenciar mapas</button><button id="addMapMarkerButton" class="button button-secondary">＋ Adicionar ponto</button></div></div>
+            <div class="map-switcher" id="mapSwitcher"></div>
+            <div class="map-workspace">
+              <div class="map-card"><div class="map-toolbar"><div><strong id="mapTitle">Nenhum mapa criado</strong><span id="mapSubtitle">Adicione um mapa para começar</span></div><div class="map-toolbar-actions"><button id="mapBackButton" class="button button-secondary button-small hidden">← Voltar</button><button id="shareMapButton" class="button button-primary button-small" disabled>Apresentar aos jogadores</button><button id="hideMapButton" class="button button-quiet button-small hidden">Ocultar mapa</button></div></div><div id="mapCanvas" class="map-canvas empty-map"><div class="empty-map-content"><span class="empty-map-icon">⌖</span><strong>Seu mapa aparecerá aqui</strong><p>Crie ou selecione um mapa para começar.</p><button id="emptyManageMapsButton" class="button button-secondary">Gerenciar mapas</button></div></div><div class="map-footer"><span id="mapMarkerCount">0 pontos neste mapa</span><span id="mapShareStatus">Este mapa ainda não está sendo exibido aos jogadores.</span></div></div>
+              <aside class="map-side-panel"><div class="side-panel-heading"><div><strong>Pontos do mapa</strong><span>Controle individual de cada ponto</span></div><span id="mapSideCount" class="count-pill">0</span></div><div id="mapMarkerList" class="map-marker-list"><div class="empty-list">Seus pontos aparecerão aqui.</div></div><div class="side-panel-tip"><span>✦</span><p>Use <b>Apresentar</b> para revelar um ponto. Pontos publicados podem ser bloqueados ou liberados para cliques dos jogadores.</p></div></aside>
+            </div>
+          </section>
+
+          <section id="view-npcs" class="view-panel">
+            <div class="page-heading"><div><div class="eyebrow">PERSONAGENS</div><h2>NPCs</h2><p>Retratos e informações dos personagens desta campanha.</p></div><div class="heading-actions"><button id="manageNpcsButton" class="button button-secondary">Gerenciar NPCs</button><button id="addNpcButton" class="button button-primary">＋ Novo NPC</button></div></div>
+            <div class="npc-list-heading"><strong>Personagens cadastrados</strong></div><div id="npcGrid" class="npc-grid"><div class="empty-state"><span>♙</span><strong>Nenhum NPC cadastrado</strong><p>Adicione personagens para organizar as informações e posicioná-los nos mapas.</p></div></div>
+          </section>
+
+          <section id="view-library" class="view-panel">
+            <div class="page-heading"><div><div class="eyebrow">ARQUIVOS DA CAMPANHA</div><h2>Biblioteca</h2><p>Imagens, GIFs e documentos gerais. NPCs e músicas têm bibliotecas próprias.</p></div><div class="heading-actions"><button id="manageLibraryButton" class="button button-secondary">Gerenciar arquivos</button><label class="button button-primary upload-label">＋ Adicionar arquivos<input id="libraryFileInput" type="file" multiple hidden accept="image/*,.gif,.pdf,.txt,.doc,.docx,.odt"></label></div></div>
+            <div class="library-toolbar"><div id="libraryFilters" class="filter-tabs"><button class="filter-tab selected" data-filter="all">Todos</button><button class="filter-tab" data-filter="image">Imagens e GIFs</button><button class="filter-tab" data-filter="document">Documentos</button></div><span id="librarySummary" class="muted-label">0 arquivos</span></div>
+            <div id="libraryGrid" class="library-grid"><div class="empty-state"><span>▧</span><strong>Sua biblioteca está vazia</strong><p>Adicione imagens, GIFs e documentos para usar na campanha.</p></div></div>
+          </section>
+
+          <section id="view-audio" class="view-panel">
+            <div class="page-heading"><div><div class="eyebrow">ATMOSFERA</div><h2>Áudio</h2><p>Organize suas músicas em álbuns. Cada álbum é uma coleção de faixas.</p></div><div class="heading-actions"><button id="manageAudioButton" class="button button-secondary">Gerenciar biblioteca</button><button id="newAudioAlbumButton" class="button button-secondary">＋ Novo álbum</button><label class="button button-primary upload-label">＋ Adicionar músicas<input id="audioFilesInput" type="file" accept="audio/*" multiple hidden></label></div></div>
+            <div class="audio-library-layout"><aside class="audio-albums-panel"><div class="section-label">ÁLBUNS</div><div id="audioAlbumList" class="audio-album-list"></div></aside><div class="audio-tracks-panel"><div class="audio-list-heading"><div><strong id="audioListTitle">Todas as músicas</strong><span id="audioCount">0 faixas</span></div><button id="clearAudioFilterButton" class="text-button">Ver todas</button></div><div id="audioTrackList" class="audio-track-list"><div class="empty-list">Adicione músicas para montar sua biblioteca.</div></div></div></div>
+          </section>
+
+          <section id="view-handouts" class="view-panel">
+            <div class="page-heading"><div><div class="eyebrow">MATERIAIS DE SESSÃO</div><h2>Handouts</h2><p>Prepare documentos, cartas e pistas para revelar quando quiser.</p></div><div class="heading-actions"><button id="manageHandoutsButton" class="button button-secondary">Gerenciar handouts</button><button id="addHandoutButton" class="button button-primary">＋ Criar handout</button></div></div>
+            <div id="handoutGrid" class="handout-grid"><div class="empty-state"><span>▤</span><strong>Nenhum handout preparado</strong><p>Crie um handout com um arquivo da biblioteca.</p></div></div>
+          </section>
+        </div>
+
+        <aside id="playerMonitor" class="player-monitor">
+          <div class="player-monitor-header"><div><span class="eyebrow">TELA COMPARTILHADA</span><strong>Visão dos jogadores</strong></div><span class="live-indicator"><i></i> Prévia</span></div>
+          <div id="playerMonitorBody" class="player-monitor-body"><div class="monitor-empty"><span>◉</span><strong>Nada apresentado</strong><p>O que você editar só aparece aqui depois de clicar em “Apresentar aos jogadores”.</p></div></div>
+          <div class="player-monitor-footer"><span>Somente materiais publicados são exibidos.</span><button id="expandPlayerMonitorButton" class="text-button">Ampliar prévia</button></div>
+        </aside>
+      </div>
+
+      <div id="audioDock" class="audio-dock"><div class="dock-track"><div class="dock-art">♫</div><div class="dock-track-info"><strong id="dockTrackTitle">Nenhuma música selecionada</strong><small id="dockTrackMeta">Escolha uma faixa na biblioteca de áudio</small></div></div><div class="dock-center"><div class="dock-buttons"><button id="audioPrevButton" class="dock-icon" title="Faixa anterior">|◀</button><button id="audioPlayButton" class="dock-play">▶</button><button id="audioNextButton" class="dock-icon" title="Próxima faixa">▶|</button></div><div class="dock-progress"><span id="audioCurrentTime">00:00</span><input id="audioSeek" type="range" min="0" max="100" value="0"><span id="audioDuration">00:00</span></div></div><div class="dock-right"><div class="dock-volume"><span>Vol.</span><input id="audioVolume" type="range" min="0" max="1" step="0.01" value="0.7"><span id="audioVolumeValue">70%</span></div><button id="audioShareButton" class="button button-secondary button-small">Apresentar aos jogadores</button></div><audio id="audioElement" preload="metadata"></audio></div>
+    </section>
+  </div>
+
+
+  <main id="playerJoinScreen" class="player-join-screen hidden">
+    <section class="player-join-card">
+      <div class="brand-lockup"><span class="brand-mark">✦</span><span>Astronic <b>Tabletop</b></span></div>
+      <div class="eyebrow">ESPAÇO DO JOGADOR</div><h1>Entre na <span>sua sessão.</span></h1><p>Digite o código recebido do mestre para entrar na sessão.</p>
+      <form id="playerJoinForm" class="auth-form"><div class="form-field"><label for="playerSessionCode">Código da sessão</label><input id="playerSessionCode" maxlength="8" autocomplete="off" placeholder="Ex.: A7K9Q2" required></div><p id="playerJoinMessage" class="auth-error" role="status"></p><button class="button button-primary button-large auth-submit" type="submit">Entrar na sessão</button></form>
+      <div class="auth-local-note"><span class="status-dot"></span><span>Você está entrando em uma sala online. Mapas apresentados pelo mestre serão recebidos nesta tela.</span></div>
+      <button id="playerJoinLogoutButton" class="text-button">← Trocar conta ou sair</button>
+    </section>
+    <div class="welcome-footer">Criado por Diana <span>·</span> Astronic Tabletop</div>
+  </main>
+
+  <section id="sessionCenterScreen" class="session-center-screen hidden" aria-label="Gerenciamento da sessão online">
+    <header class="session-center-topbar"><div class="brand-lockup"><span class="brand-mark">✦</span><span>Astronic <b>Tabletop</b></span></div><div class="session-topbar-title"><span class="eyebrow">CENTRAL DO MESTRE</span><strong>Sessão online</strong></div><button id="closeSessionCenterButton" class="button button-secondary">← Voltar ao editor</button></header>
+    <main class="session-center-content"><div class="session-center-intro"><div class="eyebrow">SALA DA CAMPANHA</div><h1>Prepare sua mesa.</h1><p>Crie uma sessão, compartilhe o código e acompanhe quem entrou.</p></div><div id="sessionCenterBody" class="session-center-body"></div></main>
+  </section>
+
+  <div id="playerViewScreen" class="player-screen hidden" aria-label="Visão exclusiva dos jogadores">
+    <header class="player-topbar">
+      <div class="brand-lockup"><span class="brand-mark">✦</span><span>Astronic <b>Tabletop</b></span></div>
+      <div class="player-mode-label"><span class="status-dot"></span> VISÃO DOS JOGADORES · <strong id="playerScreenCampaignName">Campanha</strong></div>
+      <button id="closePlayerViewButton" class="button button-secondary">← Voltar ao painel do mestre</button>
+    </header>
+    <main id="playerScreenBody" class="player-content"><div class="player-empty"><span>◉</span><strong>Nada apresentado ainda</strong><p>O mestre ainda não compartilhou nenhum conteúdo.</p></div></main>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden"><section id="modalPanel" class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-header"><div><span id="modalEyebrow" class="eyebrow">ASTRONIC TABLETOP</span><h3 id="modalTitle">Título</h3></div><button id="modalCloseButton" class="icon-button" aria-label="Fechar">×</button></div><div id="modalBody" class="modal-body"></div></section></div>
+  <input id="mapUploadInput" type="file" accept="image/*" hidden>
+  <input id="hiddenFilePicker" type="file" hidden>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

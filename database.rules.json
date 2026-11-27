@@ -1,0 +1,105 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "masterUsers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "userProfiles": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['displayName', 'email', 'createdAt'])",
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 50"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val() === auth.token.email"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "masterSessions": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid && root.child('masterUsers').child(auth.uid).val() === true",
+        ".write": "auth != null && auth.uid === $uid && root.child('masterUsers').child(auth.uid).val() === true"
+      }
+    },
+    "masterSessionHistory": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid && root.child('masterUsers').child(auth.uid).val() === true",
+        ".write": "auth != null && auth.uid === $uid && root.child('masterUsers').child(auth.uid).val() === true"
+      }
+    },
+    "sessionCodes": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && ((!newData.exists() && data.child('masterUid').val() === auth.uid) || (newData.exists() && newData.child('masterUid').val() === auth.uid))"
+      }
+    },
+    "sessions": {
+      "$sessionId": {
+        "info": {
+          ".read": "auth != null && ((root.child('masterUsers').child(auth.uid).val() === true && data.child('masterUid').val() === auth.uid) || root.child('sessions').child($sessionId).child('participants').child(auth.uid).exists())",
+          ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && ((!data.exists() && newData.child('masterUid').val() === auth.uid) || data.child('masterUid').val() === auth.uid)"
+        },
+        "participants": {
+          ".read": "auth != null && ((root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid) || root.child('sessions').child($sessionId).child('participants').child(auth.uid).exists())",
+          "$participantUid": {
+            ".read": "auth != null && (auth.uid === $participantUid || (root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid))",
+            ".write": "auth != null && auth.uid === $participantUid && ((newData.exists() && newData.child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active') || (!newData.exists() && (data.child('role').val() === 'player' || (data.child('role').val() === 'master' && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid))) || (newData.exists() && newData.child('role').val() === 'master' && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid))"
+          }
+        },
+        "publishedState": {
+          ".read": "auth != null && ((root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid) || root.child('sessions').child($sessionId).child('participants').child(auth.uid).exists())",
+          ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid"
+        },
+        "rtcOffers": {
+          "$playerUid": {
+            ".read": "auth != null && auth.uid === $playerUid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'",
+            "$connectionId": {
+              ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'"
+            },
+            ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid"
+          }
+        },
+        "rtcAnswers": {
+          "$playerUid": {
+            "$connectionId": {
+              ".read": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'",
+              ".write": "auth != null && auth.uid === $playerUid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'"
+            },
+            ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid"
+          }
+        },
+        "rtcMasterCandidates": {
+          "$playerUid": {
+            ".read": "auth != null && auth.uid === $playerUid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'",
+            "$connectionId": {
+              "$candidateId": {
+                ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'"
+              }
+            },
+            ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid"
+          }
+        },
+        "rtcPlayerCandidates": {
+          "$playerUid": {
+            "$connectionId": {
+              ".read": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'",
+              "$candidateId": {
+                ".write": "auth != null && auth.uid === $playerUid && root.child('sessions').child($sessionId).child('participants').child($playerUid).child('role').val() === 'player' && root.child('sessions').child($sessionId).child('info').child('status').val() === 'active'"
+              }
+            },
+            ".write": "auth != null && root.child('masterUsers').child(auth.uid).val() === true && root.child('sessions').child($sessionId).child('info').child('masterUid').val() === auth.uid"
+          }
+        }
+      }
+    }
+  }
+}
